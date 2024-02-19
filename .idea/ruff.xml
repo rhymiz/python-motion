@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="RuffConfigService">
-    <option name="projectRuffExecutablePath" value="$USER_HOME$/Library/Caches/pypoetry/virtualenvs/usemotion-l0Gbm6TL-py3.11/bin/ruff" />
-    <option name="projectRuffLspExecutablePath" value="$USER_HOME$/Library/Caches/pypoetry/virtualenvs/usemotion-l0Gbm6TL-py3.11/bin/ruff-lsp" />
-    <option name="useRuffFormat" value="true" />
-  </component>
-</project>
