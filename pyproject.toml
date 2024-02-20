@@ -2,7 +2,7 @@
 name = "python-motion"
 version = "0.1.0"
 description = ""
-authors = ["Lemi Boyce <lemuel@vokality.com>"]
+authors = ["Lemuel Boyce <lemuel@vokality.com>"]
 readme = "README.md"
 license = "MIT"
 packages = [{ "include" = "motion", from = "src" }]
