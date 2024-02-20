@@ -17,7 +17,8 @@ class HttpMethod(Enum):
 class HttpClient:
     def __init__(self, api_key: str) -> None:
         self._api_key = api_key
-        self._base_url = "https://api.usemotion.com/v1"
+        self._base_url = "https://api.usemotion.com"
+        self._api_version = "v1"
 
     def call_api(
         self,
@@ -29,7 +30,8 @@ class HttpClient:
         """
         Call the Motion API
         """
-        url = urljoin(self._base_url, path)
+        path = path[1:] if path.startswith("/") else path
+        url = urljoin(self._base_url, f"/{self._api_version}/{path}")
         return requests.request(
             method=method.value,
             url=url,
