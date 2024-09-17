@@ -74,5 +74,37 @@ pip install python_motion[todo]
 ```
 
 Using the CLI:
+```bash
+$ todo 
+Usage: todo [OPTIONS] COMMAND [ARGS]...
 
+  todo - A tool to sync TODOs from text files with Motion API and export them.
 
+Options:
+  --debug  Enable debug logging.
+  --help   Show this message and exit.
+
+Commands:
+  export  Export TODOs from files to a JSON file or Markdown table.
+  sync    Sync TODOs from specified files with Motion API.
+```
+
+```bash
+$ todo sync --help
+Usage: todo sync [OPTIONS]
+
+  Sync TODOs from specified files with Motion API.
+
+Options:
+  --dir DIRECTORY    Path to the directory containing files.  [required]
+  --file-types TEXT  Comma-separated list of file extensions to scan for TODOs
+                     (e.g., .tex,.py,.md).
+  --api-key TEXT     API key for authentication (or set via MOTION_API_TOKEN
+                     environment variable).
+  --dry-run          Simulate the sync without making changes to the API.
+  --export-json      Export TODOs to a JSON file.
+  --json-path TEXT   Path to the output JSON file.
+  --export-md        Export TODOs as a Markdown table.
+  --md-path TEXT     Path to the output Markdown file.
+  --help             Show this message and exit.
+```
