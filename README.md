@@ -64,3 +64,15 @@ motion.tasks.delete('task-id')
 - [ ] Named arguments for all methods
 - [ ] Async support
 - [ ] Convert responses to Pydantic models
+
+
+## Using the Plugins
+
+Installing the plugin:
+```
+pip install python_motion[todo]
+```
+
+Using the CLI:
+
+
