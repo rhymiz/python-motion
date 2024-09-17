@@ -5,14 +5,27 @@ description = ""
 authors = ["Lemuel Boyce <lemuel@vokality.com>"]
 readme = "README.md"
 license = "MIT"
-packages = [{ "include" = "motion", from = "src" }]
+packages = [
+  { "include" = "motion", from = "src" },
+  { "include" = "todo_manager", from = "plugins" },
+]
+
+[tool.poetry.scripts]
+todo = "todo_manager.cli:cli"
 
 [tool.poetry.dependencies]
 python = "^3.11"
 requests = "^2.31.0"
 pydantic = "^2.6.1"
+click = {version="^8.0", optional=true}
+
+[tool.poetry.extras]
+todo = [
+  "click"
+]
 
 [tool.poetry.group.dev.dependencies]
+pytest = "*"
 ruff = "^0.2.2"
 ruff-lsp = "^0.0.52"
 
@@ -28,6 +41,9 @@ skip-magic-trailing-comma = false
 line-ending = "auto"
 docstring-code-format = true
 docstring-code-line-length = 79
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
 
 [build-system]
 requires = ["poetry-core"]
