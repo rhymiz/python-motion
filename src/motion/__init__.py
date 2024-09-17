@@ -8,6 +8,7 @@ from .resources import (
     UserResource,
     WorkspaceResource,
 )
+from .models import MotionResponse
 
 
 class Motion:
