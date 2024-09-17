@@ -1,4 +1,4 @@
-# python-motion/plugsin/todo_manager/cli.py
+# python-motion/plugins/todo_manager/cli.py
 
 import os
 from pathlib import Path
@@ -29,10 +29,15 @@ def cli(ctx, debug):
 
 @cli.command()
 @click.option(
-    '--tex-dir',
+    '--dir',
     required=True,
     type=click.Path(exists=True, file_okay=False),
-    help='Path to the directory containing .tex files.'
+    help='Path to the directory containing files.'
+)
+@click.option(
+    '--file-types',
+    default='.tex',
+    help='Comma-separated list of file extensions to scan for TODOs (e.g., .tex,.py,.md).'
 )
 @click.option(
     '--api-key',
@@ -67,9 +72,9 @@ def cli(ctx, debug):
     show_default=True,
     help='Path to the output Markdown file.'
 )
-def sync(tex_dir, api_key, dry_run, export_json, json_path, export_md, md_path):
+def sync(dir, file_types, api_key, dry_run, export_json, json_path, export_md, md_path):
     """
-    Sync TODOs from .tex files with Motion API.
+    Sync TODOs from specified files with Motion API.
     """
     logger = logging.getLogger(__name__)
 
@@ -79,10 +84,13 @@ def sync(tex_dir, api_key, dry_run, export_json, json_path, export_md, md_path):
             f"API key must be provided either via --api-key or the {MOTION_API_TOKEN} environment variable."
         )
 
+    file_types = [ext.strip() for ext in file_types.split(',')]
+    
     try:
         logger.info("Starting synchronization of TODOs.")
         todos_to_add, _, todos_to_delete = sync_todos(
-            tex_directory=tex_dir,
+            directory=dir,
+            file_types=file_types,
             api_key=api_key,
             dry_run=dry_run,
             export_json=export_json,
@@ -101,13 +109,17 @@ def sync(tex_dir, api_key, dry_run, export_json, json_path, export_md, md_path):
         logger.exception("An error occurred during synchronization.")
         click.echo(f"An error occurred during synchronization: {e}", err=True)
 
-
 @cli.command()
 @click.option(
-    '--tex-dir',
+    '--dir',
     required=True,
     type=click.Path(exists=True, file_okay=False),
-    help='Path to the directory containing .tex files.'
+    help='Path to the directory containing files.'
+)
+@click.option(
+    '--file-types',
+    default='.tex',
+    help='Comma-separated list of file extensions to scan for TODOs (e.g., .tex,.py,.md).'
 )
 @click.option(
     '--export-json',
@@ -131,22 +143,24 @@ def sync(tex_dir, api_key, dry_run, export_json, json_path, export_md, md_path):
     show_default=True,
     help='Path to the output Markdown file.'
 )
-def export(tex_dir, export_json, json_path, export_md, md_path):
+def export(dir, file_types, export_json, json_path, export_md, md_path):
     """
-    Export TODOs from .tex files to a JSON file or Markdown table.
+    Export TODOs from files to a JSON file or Markdown table.
     """
     logger = logging.getLogger(__name__)
     
     if json_path is None:
-        json_path = str((Path(tex_dir) / "todo.json").resolve())
+        json_path = str((Path(dir) / "todo.json").resolve())
     
     if md_path is None:
-        md_path = str((Path(tex_dir) / "README.md").resolve())
+        md_path = str((Path(dir) / "README.md").resolve())
+
+    file_types = [ext.strip() for ext in file_types.split(',')]
 
     try:
-        logger.info("Extracting TODOs from .tex files.")
-        todos = get_all_todos(tex_directory=tex_dir)
-        logger.info(f"Extracted {len(todos)} TODO(s) from .tex files.")
+        logger.info("Extracting TODOs from files.")
+        todos = get_all_todos(directory=dir, file_types=file_types)
+        logger.info(f"Extracted {len(todos)} TODO(s) from files.")
         
         if export_json:
             export_todos_to_json(todos, output_path=json_path)
@@ -164,3 +178,4 @@ def export(tex_dir, export_json, json_path, export_md, md_path):
 
 if __name__ == "__main__":
     cli()
+
