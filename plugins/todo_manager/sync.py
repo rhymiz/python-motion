@@ -1,4 +1,4 @@
-# python-motion/plugins/task_manager/sync.py
+# python-motion/plugins/todo_manager/sync.py
 
 import os
 import re
@@ -6,9 +6,10 @@ import json
 import logging
 from typing import List, Dict, Any, Tuple
 from motion import Motion
-from datetime import datetime
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from motion.models import MotionResponse, Task
+from pathlib import Path
+from datetime import datetime
 
 # Configure a logger for this module
 logger = logging.getLogger(__name__)
@@ -45,7 +46,10 @@ def extract_todos_from_content(file_path: str, content: str) -> List[Dict[str, A
                 'category': category,
                 'text': text,
                 'file': file_path,
-                'line': line_num
+                'line': line_num,
+                'status': 'active',  # New field to track status
+                'created_at': datetime.utcnow().isoformat(),
+                'completed_at': None  # To be filled when completed
             })
             logger.debug(f"Extracted TODO: {todos[-1]}")
     return todos
@@ -109,31 +113,33 @@ def determine_diffs(
 
     return todos_to_add, todos_to_update, todos_to_delete
 
-def export_todos_to_json(todos: List[Dict[str, Any]], output_path: str) -> None:
+def export_todos_to_json(todos_data: Dict[str, Any], output_path: str) -> None:
     """
-    Exports the list of todos to a JSON file.
+    Exports the todos data to a JSON file.
 
     Args:
-        todos (List[Dict[str, Any]]): List of todo dictionaries.
+        todos_data (Dict[str, Any]): Dictionary containing all todos and their statuses.
         output_path (str): Path to the output JSON file.
     """
     try:
         with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(todos, f, indent=4)
-        logger.info(f"Exported {len(todos)} TODO(s) to JSON file: {output_path}")
+            json.dump(todos_data, f, indent=4)
+        logger.info(f"Exported {len(todos_data.get('todos', []))} TODO(s) to JSON file: {output_path}")
     except Exception as e:
         logger.error(f"Failed to export TODOs to JSON: {e}")
         raise
 
-def export_todos_to_markdown(todos: List[Dict[str, Any]], output_path: str) -> None:
+def export_todos_to_markdown(todos_data: Dict[str, Any], output_path: str, completed_todos: List[Dict[str, Any]] = None) -> None:
     """
-    Exports the list of todos as categorized Markdown tables to a file.
+    Exports the list of todos as categorized Markdown tables to a file, and lists completed todos.
 
     Args:
-        todos (List[Dict[str, Any]]): List of todo dictionaries.
+        todos_data (Dict[str, Any]): Dictionary containing all todos and their statuses.
         output_path (str): Path to the output Markdown file.
+        completed_todos (List[Dict[str, Any]]): List of completed todos.
     """
     try:
+        todos = [todo for todo in todos_data.get('todos', []) if todo['status'] == 'active']
         # Group todos by category
         categorized_todos: Dict[str, List[Dict[str, Any]]] = {}
         for todo in todos:
@@ -151,20 +157,67 @@ def export_todos_to_markdown(todos: List[Dict[str, Any]], output_path: str) -> N
                     file_path = todo['file'].replace('|', '\\|')
                     f.write(f"| {todo['id']} | {text} | {file_path} | {todo['line']} |\n")
                 f.write("\n")  # Add an empty line after each table
-        logger.info(f"Exported {len(todos)} TODO(s) to Markdown file: {output_path}")
+
+            # List the completed todos at the end of the markdown
+            if completed_todos:
+                f.write("### Completed TODOs\n\n")
+                f.write("| ID | Text | File | Line | Completed At |\n")
+                f.write("|----|------|------|------|--------------|\n")
+                for todo in completed_todos:
+                    text = todo['text'].replace('|', '\\|')
+                    file_path = todo['file'].replace('|', '\\|')
+                    completed_at = todo.get('completed_at', 'Unknown')
+                    f.write(f"| {todo['id']} | {text} | {file_path} | {todo['line']} | {completed_at} |\n")
+
+        logger.info(f"Exported TODOs to Markdown file: {output_path}")
     except Exception as e:
         logger.error(f"Failed to export TODOs to Markdown: {e}")
+        raise
+
+def load_todos_json(json_path: str) -> Dict[str, Any]:
+    """
+    Loads the todos.json file. If it doesn't exist, initializes a new structure.
+
+    Args:
+        json_path (str): Path to the todos.json file.
+
+    Returns:
+        Dict[str, Any]: The loaded or initialized todos data.
+    """
+    if not Path(json_path).exists():
+        logger.info(f"todos.json not found at {json_path}. Creating a new one.")
+        return {'todos': []}
+    try:
+        with open(json_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        logger.debug(f"Loaded todos.json with {len(data.get('todos', []))} todos.")
+        return data
+    except Exception as e:
+        logger.error(f"Failed to load todos.json: {e}")
+        raise
+
+def save_todos_json(todos_data: Dict[str, Any], json_path: str) -> None:
+    """
+    Saves the todos data to the todos.json file.
+
+    Args:
+        todos_data (Dict[str, Any]): The todos data to save.
+        json_path (str): Path to the todos.json file.
+    """
+    try:
+        with open(json_path, 'w', encoding='utf-8') as f:
+            json.dump(todos_data, f, indent=4)
+        logger.debug(f"Saved todos.json with {len(todos_data.get('todos', []))} todos.")
+    except Exception as e:
+        logger.error(f"Failed to save todos.json: {e}")
         raise
 
 def sync_todos(
     directory: str,
     file_types: List[str],
     api_key: str,
-    dry_run: bool = False,  # New dry-run flag
-    export_json: bool = False,
-    json_path: str = "todos.json",
-    export_md: bool = False,
-    md_path: str = "README.md"
+    dry_run: bool = False,
+    json_path: str = "todos.json"
 ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]], List[Task]]:
     """
     Synchronizes todos from specified files with the Motion API and exports them.
@@ -174,10 +227,7 @@ def sync_todos(
         file_types (List[str]): List of file extensions to scan for TODOs.
         api_key (str): API key for authentication.
         dry_run (bool): If True, only simulate the synchronization and show the changes.
-        export_json (bool): Whether to export todos to a JSON file.
-        json_path (str): Path to the output JSON file.
-        export_md (bool): Whether to export todos to a Markdown file.
-        md_path (str): Path to the output Markdown file.
+        json_path (str): Path to the todos.json file.
 
     Returns:
         Tuple of lists for todos to add, update, and delete.
@@ -186,14 +236,19 @@ def sync_todos(
     motion = Motion(api_key)
 
     logger.debug("Fetching existing tasks from Motion API.")
-    api_todos = motion.tasks.list().json()
-    motion_response = MotionResponse.parse_obj(api_todos)
+    api_todos_response = motion.tasks.list().json()
+    motion_response = MotionResponse.parse_obj(api_todos_response)
     api_tasks = motion_response.tasks
     logger.debug(f"Fetched {len(api_tasks)} tasks from Motion API.")
+
+    # Load existing todos.json
+    todos_data = load_todos_json(json_path)
+    existing_todos = {todo['id']: todo for todo in todos_data.get('todos', [])}
 
     # Extract local TODOs from the files
     logger.debug("Extracting local TODOs from files.")
     local_todos = get_all_todos(directory, file_types)
+    local_todo_map = {todo['id']: todo for todo in local_todos}
 
     # Determine diffs between local TODOs and API tasks
     todos_to_add, todos_to_update, todos_to_delete = determine_diffs(local_todos, api_tasks)
@@ -201,47 +256,60 @@ def sync_todos(
     if dry_run:
         # In dry run mode, we just log the changes without making API calls
         logger.info(f"Dry run: {len(todos_to_add)} new TODOs would be added.")
-        logger.info(f"Dry run: {len(todos_to_update)} TODOs would be updated.")
-        logger.info(f"Dry run: {len(todos_to_delete)} TODOs would be removed from the API.")
+        logger.info(f"Dry run: {len(todos_to_delete)} completed TODOs would be removed from the API.")
         return todos_to_add, todos_to_update, todos_to_delete
 
     # Proceed with real syncing if not dry run
     # Add new todos to the Motion API
     for todo in todos_to_add:
         try:
-            motion.tasks.create({
+            response = motion.tasks.create({
                 'name': todo['text'],
                 'description': f"File: {todo['file']}, Line: {todo['line']}"
-            })
-            logger.info(f"Added TODO to Motion API: {todo['text']}")
+            }).json()
+            # Assuming the API returns the created task with an ID
+            created_task = Task.parse_obj(response)
+            logger.info(f"Added TODO to Motion API: {todo['text']} with ID {created_task.id}")
+            # Update todo with API ID
+            todo['api_id'] = created_task.id
+            todo['status'] = 'active'
+            todo['created_at'] = created_task.created_at.isoformat() if created_task.created_at else todo['created_at']
         except Exception as e:
             logger.error(f"Failed to add TODO '{todo['text']}': {e}")
 
     # Update todos in the Motion API
     for todo in todos_to_update:
         try:
-            motion.tasks.update(todo['id'], {
-                'name': todo['text'],
-                'description': f"File: {todo['file']}, Line: {todo['line']}"
-            })
-            logger.info(f"Updated TODO in Motion API: {todo['text']}")
+            task = api_todo_map.get(todo['id'])
+            if task:
+                motion.tasks.update(task.id, {
+                    'name': todo['text'],
+                    'description': f"File: {todo['file']}, Line: {todo['line']}"
+                })
+                logger.info(f"Updated TODO in Motion API: {todo['text']}")
         except Exception as e:
             logger.error(f"Failed to update TODO '{todo['text']}': {e}")
 
-    # Delete todos from the Motion API
+    # Delete todos from the Motion API and mark them as completed in todos.json
     for task in todos_to_delete:
         try:
             motion.tasks.delete(task.id)
             logger.info(f"Deleted TODO ID: {task.id} from the Motion API")
+            # Mark as completed in todos.json
+            for todo in todos_data['todos']:
+                if todo.get('api_id') == task.id:
+                    todo['status'] = 'completed'
+                    todo['completed_at'] = datetime.utcnow().isoformat()
         except Exception as e:
             logger.error(f"Failed to delete TODO ID '{task.id}': {e}")
 
-    # Optionally export the todos
-    if export_json:
-        export_todos_to_json(local_todos, json_path)
-    if export_md:
-        export_todos_to_markdown(local_todos, md_path)
+    # Update todos.json with current active todos
+    active_todos = [todo for todo in todos_data.get('todos', []) if todo['status'] == 'active']
+    active_todos.extend(local_todos)  # Add current active todos
+    todos_data['todos'] = active_todos
+
+    # Save the updated todos.json
+    save_todos_json(todos_data, json_path)
 
     logger.info("Sync complete.")
     return todos_to_add, todos_to_update, todos_to_delete
-
