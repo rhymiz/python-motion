@@ -38,10 +38,12 @@ class HttpClient:
         """
         path = path[1:] if path.startswith("/") else path
         url = urljoin(self._base_url, f"/{self._api_version}/{path}")
-        return requests.request(
+        response = requests.request(
             method=method.value,
             url=url,
             json=data,
             params=params,  # type: ignore
             headers={"X-API-Key": self._api_key},
         )
+        response.raise_for_status()
+        return response
