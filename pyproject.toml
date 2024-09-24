@@ -15,6 +15,7 @@ pydantic = "^2.6.1"
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.2.2"
 ruff-lsp = "^0.0.52"
+pytest = "^8.3.3"
 
 [tool.ruff]
 line-length = 79

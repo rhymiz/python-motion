@@ -1,9 +1,9 @@
-name: PyPI Release
+name: Test
 on:
-  release:
-    types: [created]
+  push:
+    branches: [main]
 jobs:
-  pypi-publish:
+  test:
     runs-on: ubuntu-latest
     environment: release
     permissions:
@@ -20,8 +20,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install setuptools wheel twine
           poetry install
-      - name: Build and publish
+      - name: Run tests
         run: |
-          poetry build
-      - name: Publish package distributions to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+          poetry run pytest
