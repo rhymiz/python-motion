@@ -9,13 +9,13 @@ packages = [{ "include" = "motion", from = "src" }]
 
 [tool.poetry.dependencies]
 python = "^3.11"
-requests = "^2.31.0"
-pydantic = "^2.6.1"
+requests = "^2.32.0"
+pydantic = "^2.9.2"
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.2.2"
-ruff-lsp = "^0.0.52"
-pytest = "^8.3.3"
+ruff = "*"
+ruff-lsp = "*"
+pytest = "*"
 
 [tool.ruff]
 line-length = 79
