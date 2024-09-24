@@ -1,17 +1,23 @@
 from enum import Enum
-from typing import Any
+from typing import Any, Generic, TypedDict, TypeVar
 from urllib.parse import urljoin
 
 import requests
 from requests import Response
 
+T = TypeVar("T")
+
+
+class GenericTypedDict(TypedDict, Generic[T]):
+    pass
+
 
 class HttpMethod(Enum):
     GET = "GET"
-    POST = "POST"
     PUT = "PUT"
-    DELETE = "DELETE"
+    POST = "POST"
     PATCH = "PATCH"
+    DELETE = "DELETE"
 
 
 class HttpClient:
@@ -24,7 +30,7 @@ class HttpClient:
         self,
         method: HttpMethod,
         path: str,
-        data: dict[str, Any] | None = None,
+        data: GenericTypedDict | None = None,
         params: dict[str, Any] | None = None,
     ) -> Response:
         """
@@ -36,6 +42,6 @@ class HttpClient:
             method=method.value,
             url=url,
             json=data,
-            params=params,
+            params=params,  # type: ignore
             headers={"X-API-Key": self._api_key},
         )

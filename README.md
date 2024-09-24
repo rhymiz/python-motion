@@ -61,6 +61,6 @@ motion.tasks.delete('task-id')
 
 ### Roadmap
 - [x] Initial implementation
-- [ ] Named arguments for all methods
+- [x] Named arguments for all methods
 - [ ] Async support
-- [ ] Convert responses to Pydantic models
+- [x] Convert responses to Pydantic models

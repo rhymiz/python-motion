@@ -1,0 +1,1705 @@
+{
+    "openapi": "3.0.0",
+    "paths": {
+        "/comments": {
+            "post": {
+                "operationId": "CommentsController_postComment",
+                "summary": "Create Comment",
+                "description": "## Comment Content Input\n\nWhen posting a comment, the content will be treated as [GitHub Flavored Markdown](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).\n",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CommentPost"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Comment"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Comments"
+                ]
+            },
+            "get": {
+                "operationId": "CommentsController_getComments",
+                "summary": "List Comments",
+                "parameters": [
+                    {
+                        "name": "cursor",
+                        "required": false,
+                        "in": "query",
+                        "description": "Use if a previous request returned a cursor. Will page through results",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "taskId",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListComments"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Comments"
+                ]
+            }
+        },
+        "/projects/{projectId}": {
+            "get": {
+                "operationId": "ProjectsController_getSingleProject",
+                "summary": "Retrieve Project",
+                "parameters": [
+                    {
+                        "name": "projectId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Project"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Projects"
+                ]
+            }
+        },
+        "/projects": {
+            "get": {
+                "operationId": "ProjectsController_get",
+                "summary": "List Projects",
+                "parameters": [
+                    {
+                        "name": "cursor",
+                        "required": false,
+                        "in": "query",
+                        "description": "Use if a previous request returned a cursor. Will page through results",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "workspaceId",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListProjects"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Projects"
+                ]
+            },
+            "post": {
+                "operationId": "ProjectsController_post",
+                "summary": "Create Project",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ProjectPost"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Project"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Projects"
+                ]
+            }
+        },
+        "/recurring-tasks": {
+            "post": {
+                "operationId": "RecurringTasksController_postRecurringTask",
+                "summary": "Create a Recurring Task",
+                "description": "## Description Input\n\nWhen passing in a task description, the input will be treated as [GitHub Flavored Markdown](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).\n\n# Defining Frequencies\n\nIn order to give our API all the power that motion has to offer, we allow calls to create recurring tasks in the same way you can through the UI.\n\n## Defining specific days for a frequency\n\n<!-- theme: warning -->\n\n> ### Note\n>\n> Defining days should always be used along with a specific frequency type as defined below.\n> A array of days should never be used on its own. See examples below.\n\nWhen picking a set of specific week days, we expect it to be defined as an array with a subset of the following values.\n\n- MO - Monday\n- TU - Tuesday\n- WE - Wednesday\n- TH - Thursday\n- FR - Friday\n- SA - Saturday\n- SU - Sunday\n\nExample - `[MO, FR, SU]` would mean Monday, Friday and Sunday.\n\n## Defining a daily frequency\n\n- `daily_every_day`\n- `daily_every_week_day`\n- `daily_specific_days_$DAYS_ARRAY$`\n  - Ex: `daily_specific_days_[MO, TU, FR]`\n\n## Defining a weekly frequency\n\n- `weekly_any_day`\n- `weekly_any_week_day`\n- `weekly_specific_days_$DAYS_ARRAY$`\n  - Ex: `weekly_specific_days_[MO, TU, FR]`\n\n## Defining a bi-weekly frequency\n\n- `biweekly_first_week_specific_days_$DAYS_ARRAY$`\n  - Ex: `biweekly_first_week_specific_days_[MO, TU, FR]`\n- `biweekly_first_week_any_day`\n- `biweekly_first_week_any_week_day`\n- `biweekly_second_week_any_day`\n- `biweekly_second_week_any_week_day`\n\n## Defining a monthly frequency\n\n### Specific Week Day Options\n\nWhen choosing the 1st, 2nd, 3rd, 4th or last day of the week for the month, it takes the form of any of the following where $DAY$ can be substituted for the day code mentioned above.\n\n- `monthly_first_$DAY$`\n- `monthly_second_$DAY$`\n- `monthly_third_$DAY$`\n- `monthly_fourth_$DAY$`\n- `monthly_last_$DAY$`\n\n**Example**\n`monthly_first_MO`\n\n### Specific Day Options\n\nWhen choosing a specific day of the month, for example the 6th, it would be defined with just the number like below.\n\nExamples:\n\n- `monthly_1`\n- `monthly_15`\n- `monthly_31`\n\nIn the case you choose a numeric value for a month that does not have that many days, we will default to the last day of the month.\n\n### Specific Week Options\n\n**Any Day**\n\n- `monthly_any_day_first_week`\n- `monthly_any_day_second_week`\n- `monthly_any_day_third_week`\n- `monthly_any_day_fourth_week`\n- `monthly_any_day_last_week`\n\n**Any Week Day**\n\n- `monthly_any_week_day_first_week`\n- `monthly_any_week_day_second_week`\n- `monthly_any_week_day_third_week`\n- `monthly_any_week_day_fourth_week`\n- `monthly_any_week_day_last_week`\n\n### Other Options\n\n- `monthly_last_day_of_month`\n- `monthly_any_week_day_of_month`\n- `monthly_any_day_of_month`\n\n## Defining a quarterly frequency\n\n### First Days\n\n- `quarterly_first_day`\n- `quarterly_first_week_day`\n- `quarterly_first_$DAY$`\n  - Ex. `quarterly_first_MO`\n\n### Last Days\n\n- `quarterly_last_day`\n- `quarterly_last_week_day`\n- `quarterly_last_$DAY$`\n  - Ex. `quarterly_last_MO`\n\n### Other Options\n\n- `quarterly_any_day_first_week`\n- `quarterly_any_day_second_week`\n- `quarterly_any_day_last_week`\n- `quarterly_any_day_first_month`\n- `quarterly_any_day_second_month`\n- `quarterly_any_day_third_month`\n",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RecurringTasksPost"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RecurringTask"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Recurring Tasks"
+                ]
+            },
+            "get": {
+                "operationId": "RecurringTasksController_listRecurringTasks",
+                "summary": "List Recurring Tasks",
+                "parameters": [
+                    {
+                        "name": "cursor",
+                        "required": false,
+                        "in": "query",
+                        "description": "Use if a previous request returned a cursor. Will page through results",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "workspaceId",
+                        "required": true,
+                        "in": "query",
+                        "description": "The id of the workspace you want tasks from.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListRecurringTasks"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Recurring Tasks"
+                ]
+            }
+        },
+        "/recurring-tasks/{taskId}": {
+            "delete": {
+                "operationId": "RecurringTasksController_deleteTask",
+                "summary": "Delete a Recurring Task",
+                "parameters": [
+                    {
+                        "name": "taskId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "Recurring Tasks"
+                ]
+            }
+        },
+        "/schedules": {
+            "get": {
+                "operationId": "SchedulesController_getMySchedules",
+                "summary": "Get schedules",
+                "description": "Get a list of schedules for your user",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Schedule"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Schedules"
+                ]
+            }
+        },
+        "/statuses": {
+            "get": {
+                "operationId": "StatusesController_get",
+                "summary": "List statuses for a workspace",
+                "parameters": [
+                    {
+                        "name": "workspaceId",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Status"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Workspaces"
+                ]
+            }
+        },
+        "/tasks/{taskId}": {
+            "patch": {
+                "operationId": "TasksController_updateTask",
+                "summary": "Update a Task",
+                "parameters": [
+                    {
+                        "name": "taskId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TaskPatch"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Task"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Tasks"
+                ]
+            },
+            "get": {
+                "operationId": "TasksController_getById",
+                "summary": "Retrieve a Task",
+                "parameters": [
+                    {
+                        "name": "taskId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Task"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Tasks"
+                ]
+            },
+            "delete": {
+                "operationId": "TasksController_deleteTask",
+                "summary": "Delete a Task",
+                "parameters": [
+                    {
+                        "name": "taskId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "Tasks"
+                ]
+            }
+        },
+        "/tasks": {
+            "post": {
+                "operationId": "TasksController_post",
+                "summary": "Create Task",
+                "description": "## Description Input\n\nWhen passing in a task description, the input will be treated as [GitHub Flavored Markdown](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).\n",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TaskPost"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Task"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Tasks"
+                ]
+            },
+            "get": {
+                "operationId": "TasksController_get",
+                "summary": "List Tasks",
+                "description": "<!-- theme: warning -->\n\n> ### Note\n>\n> By default, all tasks that are completed are left out unless\n> specifically filtered for via the status.\n",
+                "parameters": [
+                    {
+                        "name": "cursor",
+                        "required": false,
+                        "in": "query",
+                        "description": "Use if a previous request returned a cursor. Will page through results",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "label",
+                        "required": false,
+                        "in": "query",
+                        "description": "Limit tasks returned by label on the task",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "required": false,
+                        "in": "query",
+                        "description": "Limit tasks returned by statuses that exist on tasks, cannot specify this ('status')\nAND includeAllStatuses in the same request",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    {
+                        "name": "includeAllStatuses",
+                        "required": false,
+                        "in": "query",
+                        "description": "Limit tasks returned by statuses that exist on tasks, cannot specify this ('includeAllStatuses')\nAND status in the same request",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "workspaceId",
+                        "required": false,
+                        "in": "query",
+                        "description": "The id of the workspace you want tasks from. If not provided, will return tasks from all workspaces the user is a member of.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "projectId",
+                        "required": false,
+                        "in": "query",
+                        "description": "Limit tasks returned to a given project",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "name",
+                        "required": false,
+                        "in": "query",
+                        "description": "Limit tasks returned to those that contain this string. Case in-sensitive",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "assigneeId",
+                        "required": false,
+                        "in": "query",
+                        "description": "Limit tasks returned to a specific assignee",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListTasks"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Tasks"
+                ]
+            }
+        },
+        "/tasks/{taskId}/assignee": {
+            "delete": {
+                "operationId": "TasksController_deleteAssignee",
+                "summary": "Unassign a task",
+                "description": "<!-- theme: warning -->\n\n> ### Note\n>\n> For simplicity, use this endpoint to unassign a task\n> instead of the generic update task endpoint.\n> This also prevents bugs and accidental unassignments.\n",
+                "parameters": [
+                    {
+                        "name": "taskId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "Tasks"
+                ]
+            }
+        },
+        "/tasks/{taskId}/move": {
+            "patch": {
+                "operationId": "TasksController_moveTask",
+                "summary": "Move Workspace",
+                "description": "### Notes\n\nWhen moving tasks from one workspace to another,\nthe tasks project, status, and label(s) and assignee will all be reset\n",
+                "parameters": [
+                    {
+                        "name": "taskId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MoveTask"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Task"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Tasks"
+                ]
+            }
+        },
+        "/users": {
+            "get": {
+                "operationId": "UsersController_get",
+                "summary": "List users",
+                "parameters": [
+                    {
+                        "name": "cursor",
+                        "required": false,
+                        "in": "query",
+                        "description": "Use if a previous request returned a cursor. Will page through results",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "workspaceId",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "teamId",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListUsers"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Users"
+                ]
+            }
+        },
+        "/users/me": {
+            "get": {
+                "operationId": "UsersController_getMe",
+                "summary": "Get My User",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Users"
+                ]
+            }
+        },
+        "/workspaces": {
+            "get": {
+                "operationId": "WorkspacesController_get",
+                "summary": "List workspaces",
+                "parameters": [
+                    {
+                        "name": "cursor",
+                        "required": false,
+                        "in": "query",
+                        "description": "Use if a previous request returned a cursor. Will page through results",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "ids",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListWorkspaces"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Workspaces"
+                ]
+            }
+        }
+    },
+    "info": {
+        "title": "Motion REST API",
+        "description": "<!-- theme: warning -->\n\n> ### Rate Limit Information\n>\n> The Motion API is currently rate limited to 12 requests per minute per user. In the event a user exceeds this rate limit 3 times\n> in a singe 24 hour period, their API access will be disabled and will require that they contact support to have it re-enabled.\n\n<!-- theme: info -->\n\n> ### Note on Date Formats\n>\n> All dates that the Motion API works with are in the format of ISO 8601. **Motion will always return dates in UTC.**\n",
+        "version": "1.0.0",
+        "contact": {}
+    },
+    "tags": [
+        {
+            "name": "Tasks",
+            "description": ""
+        },
+        {
+            "name": "Recurring Tasks",
+            "description": ""
+        },
+        {
+            "name": "Comments",
+            "description": ""
+        },
+        {
+            "name": "Projects",
+            "description": ""
+        },
+        {
+            "name": "Workspaces",
+            "description": ""
+        },
+        {
+            "name": "Users",
+            "description": ""
+        },
+        {
+            "name": "Schedules",
+            "description": ""
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api.usemotion.com/v1"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "Motion_API_Key": {
+                "in": "header",
+                "name": "X-API-Key",
+                "type": "apiKey"
+            }
+        },
+        "schemas": {
+            "CommentPost": {
+                "type": "object",
+                "properties": {
+                    "taskId": {
+                        "type": "string"
+                    },
+                    "content": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "taskId",
+                    "content"
+                ]
+            },
+            "User": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name"
+                ]
+            },
+            "Comment": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "taskId": {
+                        "type": "string"
+                    },
+                    "content": {
+                        "type": "string"
+                    },
+                    "creator": {
+                        "description": "The user that created this comment",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/User"
+                            }
+                        ]
+                    },
+                    "createdAt": {
+                        "format": "date-time",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "taskId",
+                    "content",
+                    "creator",
+                    "createdAt"
+                ]
+            },
+            "MetaResult": {
+                "type": "object",
+                "properties": {
+                    "nextCursor": {
+                        "type": "string",
+                        "description": "Returned if there are more entities to return. Pass back with the cursor param set to continue paging."
+                    },
+                    "pageSize": {
+                        "type": "number",
+                        "description": "Maximum number of entities delivered per page"
+                    }
+                },
+                "required": [
+                    "pageSize"
+                ]
+            },
+            "ListComments": {
+                "type": "object",
+                "properties": {
+                    "comments": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Comment"
+                        }
+                    },
+                    "meta": {
+                        "description": "Information about the result. Contains information necessary for pagination.",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/MetaResult"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "comments"
+                ]
+            },
+            "Status": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "isDefaultStatus": {
+                        "type": "boolean"
+                    },
+                    "isResolvedStatus": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "name",
+                    "isDefaultStatus",
+                    "isResolvedStatus"
+                ]
+            },
+            "Project": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "workspaceId": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/Status"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "status"
+                ]
+            },
+            "ListProjects": {
+                "type": "object",
+                "properties": {
+                    "projects": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Project"
+                        }
+                    },
+                    "meta": {
+                        "description": "Information about the result. Contains information necessary for pagination.",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/MetaResult"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "projects"
+                ]
+            },
+            "ProjectPost": {
+                "type": "object",
+                "properties": {
+                    "dueDate": {
+                        "type": "string",
+                        "description": "ISO 8601 Due date on the task",
+                        "example": "2024-03-12T10:52:55.714-06:00",
+                        "format": "date-time"
+                    },
+                    "name": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "workspaceId": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "labels": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "priority": {
+                        "type": "string",
+                        "default": "MEDIUM",
+                        "enum": [
+                            "ASAP",
+                            "HIGH",
+                            "MEDIUM",
+                            "LOW"
+                        ]
+                    }
+                },
+                "required": [
+                    "name",
+                    "workspaceId",
+                    "priority"
+                ]
+            },
+            "RecurringTasksPost": {
+                "type": "object",
+                "properties": {
+                    "frequency": {
+                        "type": "string",
+                        "description": "Frequency in which the task should be scheduled. Please carefully read how to construct above."
+                    },
+                    "deadlineType": {
+                        "type": "string",
+                        "default": "SOFT",
+                        "enum": [
+                            "HARD",
+                            "SOFT"
+                        ]
+                    },
+                    "duration": {
+                        "default": 30,
+                        "description": "A duration can be one of the following... \"REMINDER\", or a integer greater than 0",
+                        "oneOf": [
+                            {
+                                "enum": [
+                                    "REMINDER"
+                                ],
+                                "type": "string"
+                            },
+                            {
+                                "minimum": 1,
+                                "type": "number"
+                            }
+                        ]
+                    },
+                    "startingOn": {
+                        "type": "string",
+                        "default": "2024-03-12T06:00:00.000Z",
+                        "description": "ISO 8601 Date which is trimmed to the start of the day passed",
+                        "example": "2024-03-12",
+                        "format": "date-time"
+                    },
+                    "idealTime": {
+                        "type": "string"
+                    },
+                    "schedule": {
+                        "type": "string",
+                        "description": "Schedule the task must adhere to",
+                        "default": "Work Hours"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Name / title of the task",
+                        "minLength": 1
+                    },
+                    "workspaceId": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "priority": {
+                        "type": "string",
+                        "default": "MEDIUM",
+                        "enum": [
+                            "HIGH",
+                            "MEDIUM"
+                        ]
+                    },
+                    "assigneeId": {
+                        "type": "string",
+                        "description": "The user id the task should be assigned too"
+                    }
+                },
+                "required": [
+                    "frequency",
+                    "name",
+                    "workspaceId",
+                    "priority",
+                    "assigneeId"
+                ]
+            },
+            "Label": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "name"
+                ]
+            },
+            "Workspace": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "teamId": {
+                        "type": "string"
+                    },
+                    "statuses": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Status"
+                        }
+                    },
+                    "labels": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Label"
+                        }
+                    },
+                    "type": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "statuses",
+                    "labels",
+                    "type"
+                ]
+            },
+            "RecurringTask": {
+                "type": "object",
+                "properties": {
+                    "workspace": {
+                        "$ref": "#/components/schemas/Workspace"
+                    },
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "creator": {
+                        "description": "The user that created this task",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/User"
+                            }
+                        ]
+                    },
+                    "assignee": {
+                        "$ref": "#/components/schemas/User"
+                    },
+                    "project": {
+                        "$ref": "#/components/schemas/Project"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/Status"
+                    },
+                    "priority": {
+                        "type": "string",
+                        "enum": [
+                            "ASAP",
+                            "HIGH",
+                            "MEDIUM",
+                            "LOW"
+                        ]
+                    },
+                    "labels": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Label"
+                        }
+                    }
+                },
+                "required": [
+                    "workspace",
+                    "id",
+                    "name",
+                    "creator",
+                    "assignee",
+                    "status",
+                    "priority",
+                    "labels"
+                ]
+            },
+            "ListRecurringTasks": {
+                "type": "object",
+                "properties": {
+                    "tasks": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/RecurringTask"
+                        }
+                    },
+                    "meta": {
+                        "description": "Information about the result. Contains information necessary for pagination.",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/MetaResult"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "tasks"
+                ]
+            },
+            "DailySchedule": {
+                "type": "object",
+                "properties": {
+                    "start": {
+                        "type": "string",
+                        "description": "24 hour time format. HH:mm",
+                        "example": "08:30"
+                    },
+                    "end": {
+                        "type": "string",
+                        "description": "24 hour time format. HH:mm",
+                        "example": "18:00"
+                    }
+                },
+                "required": [
+                    "start",
+                    "end"
+                ]
+            },
+            "ScheduleBreakout": {
+                "type": "object",
+                "properties": {
+                    "monday": {
+                        "description": "Array could be empty if there is no range for this day",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DailySchedule"
+                        }
+                    },
+                    "tuesday": {
+                        "description": "Array could be empty if there is no range for this day",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DailySchedule"
+                        }
+                    },
+                    "wednesday": {
+                        "description": "Array could be empty if there is no range for this day",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DailySchedule"
+                        }
+                    },
+                    "thursday": {
+                        "description": "Array could be empty if there is no range for this day",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DailySchedule"
+                        }
+                    },
+                    "friday": {
+                        "description": "Array could be empty if there is no range for this day",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DailySchedule"
+                        }
+                    },
+                    "saturday": {
+                        "description": "Array could be empty if there is no range for this day",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DailySchedule"
+                        }
+                    },
+                    "sunday": {
+                        "description": "Array could be empty if there is no range for this day",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DailySchedule"
+                        }
+                    }
+                },
+                "required": [
+                    "monday",
+                    "tuesday",
+                    "wednesday",
+                    "thursday",
+                    "friday",
+                    "saturday",
+                    "sunday"
+                ]
+            },
+            "Schedule": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "isDefaultTimezone": {
+                        "type": "boolean"
+                    },
+                    "timezone": {
+                        "type": "string"
+                    },
+                    "schedule": {
+                        "description": "Schedule broken out by day. It is possible for a day to have more than one start/end time",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/ScheduleBreakout"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "name",
+                    "isDefaultTimezone",
+                    "timezone",
+                    "schedule"
+                ]
+            },
+            "AutoScheduledInfo": {
+                "type": "object",
+                "properties": {
+                    "startDate": {
+                        "type": "string",
+                        "default": "2024-03-12T06:00:00.000Z",
+                        "description": "ISO 8601 Date which is trimmed to the start of the day passed",
+                        "example": "2024-03-12",
+                        "format": "date-time"
+                    },
+                    "deadlineType": {
+                        "type": "string",
+                        "default": "SOFT",
+                        "enum": [
+                            "HARD",
+                            "SOFT",
+                            "NONE"
+                        ]
+                    },
+                    "schedule": {
+                        "type": "string",
+                        "description": "Schedule the task must adhere to. Schedule MUST be 'Work Hours' if scheduling the task for another user.",
+                        "default": "Work Hours"
+                    }
+                }
+            },
+            "TaskPatch": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Name / title of the task"
+                    },
+                    "dueDate": {
+                        "type": "string",
+                        "description": "ISO 8601 Due date on the task. REQUIRED for scheduled tasks",
+                        "example": "2024-03-12T10:52:55.724-06:00",
+                        "format": "date-time"
+                    },
+                    "assigneeId": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "The user id the task should be assigned to, setting the value to null will remove the assignee"
+                    },
+                    "duration": {
+                        "description": "A duration can be one of the following... \"NONE\", \"REMINDER\", or a integer greater than 0",
+                        "oneOf": [
+                            {
+                                "enum": [
+                                    "NONE",
+                                    "REMINDER"
+                                ],
+                                "type": "string"
+                            },
+                            {
+                                "minimum": 1,
+                                "type": "number"
+                            }
+                        ]
+                    },
+                    "status": {
+                        "type": "string",
+                        "description": "Defaults to workspace default status."
+                    },
+                    "autoScheduled": {
+                        "nullable": true,
+                        "description": "Set values to turn auto scheduling on, set value to null if you want to turn auto scheduling off. The status for the task must have auto scheduling enabled.",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/AutoScheduledInfo"
+                            }
+                        ]
+                    },
+                    "projectId": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Input as GitHub Flavored Markdown"
+                    },
+                    "priority": {
+                        "type": "string",
+                        "enum": [
+                            "ASAP",
+                            "HIGH",
+                            "MEDIUM",
+                            "LOW"
+                        ]
+                    },
+                    "labels": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "Task": {
+                "type": "object",
+                "properties": {
+                    "duration": {
+                        "default": 30,
+                        "description": "A duration can be one of the following... \"NONE\", \"REMINDER\", or a integer greater than 0",
+                        "oneOf": [
+                            {
+                                "enum": [
+                                    "NONE",
+                                    "REMINDER"
+                                ],
+                                "type": "string"
+                            },
+                            {
+                                "minimum": 1,
+                                "type": "number"
+                            }
+                        ]
+                    },
+                    "workspace": {
+                        "$ref": "#/components/schemas/Workspace"
+                    },
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "dueDate": {
+                        "format": "date-time",
+                        "type": "string"
+                    },
+                    "deadlineType": {
+                        "type": "string",
+                        "default": "SOFT",
+                        "enum": [
+                            "HARD",
+                            "SOFT",
+                            "NONE"
+                        ]
+                    },
+                    "parentRecurringTaskId": {
+                        "type": "string"
+                    },
+                    "completed": {
+                        "type": "boolean"
+                    },
+                    "creator": {
+                        "description": "The user that created this task",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/User"
+                            }
+                        ]
+                    },
+                    "project": {
+                        "$ref": "#/components/schemas/Project"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/Status"
+                    },
+                    "priority": {
+                        "type": "string",
+                        "enum": [
+                            "ASAP",
+                            "HIGH",
+                            "MEDIUM",
+                            "LOW"
+                        ]
+                    },
+                    "labels": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Label"
+                        }
+                    },
+                    "assignees": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/User"
+                        }
+                    },
+                    "scheduledStart": {
+                        "format": "date-time",
+                        "type": "string",
+                        "description": "The time that motion has scheduled this task to start"
+                    },
+                    "createdTime": {
+                        "format": "date-time",
+                        "type": "string",
+                        "description": "The time that the task was created"
+                    },
+                    "scheduledEnd": {
+                        "format": "date-time",
+                        "type": "string",
+                        "description": "The time that motion has scheduled this task to end"
+                    },
+                    "schedulingIssue": {
+                        "type": "boolean",
+                        "description": "Returns true if Motion was unable to schedule this task. Check Motion directly to address"
+                    }
+                },
+                "required": [
+                    "workspace",
+                    "id",
+                    "name",
+                    "dueDate",
+                    "deadlineType",
+                    "parentRecurringTaskId",
+                    "completed",
+                    "creator",
+                    "status",
+                    "priority",
+                    "labels",
+                    "assignees",
+                    "createdTime",
+                    "schedulingIssue"
+                ]
+            },
+            "TaskPost": {
+                "type": "object",
+                "properties": {
+                    "dueDate": {
+                        "type": "string",
+                        "description": "ISO 8601 Due date on the task. REQUIRED for scheduled tasks",
+                        "example": "2024-03-12T10:52:55.724-06:00",
+                        "format": "date-time"
+                    },
+                    "duration": {
+                        "default": 30,
+                        "description": "A duration can be one of the following... \"NONE\", \"REMINDER\", or a integer greater than 0",
+                        "oneOf": [
+                            {
+                                "enum": [
+                                    "NONE",
+                                    "REMINDER"
+                                ],
+                                "type": "string"
+                            },
+                            {
+                                "minimum": 1,
+                                "type": "number"
+                            }
+                        ]
+                    },
+                    "status": {
+                        "type": "string",
+                        "description": "Defaults to workspace default status."
+                    },
+                    "autoScheduled": {
+                        "nullable": true,
+                        "description": "Set values to turn auto scheduling on, set value to null if you want to turn auto scheduling off. The status for the task must have auto scheduling enabled.",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/AutoScheduledInfo"
+                            }
+                        ]
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Name / title of the task",
+                        "minLength": 1
+                    },
+                    "projectId": {
+                        "type": "string"
+                    },
+                    "workspaceId": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Input as GitHub Flavored Markdown"
+                    },
+                    "priority": {
+                        "type": "string",
+                        "default": "MEDIUM",
+                        "enum": [
+                            "ASAP",
+                            "HIGH",
+                            "MEDIUM",
+                            "LOW"
+                        ]
+                    },
+                    "labels": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "assigneeId": {
+                        "type": "string",
+                        "description": "The user id the task should be assigned to"
+                    }
+                },
+                "required": [
+                    "name",
+                    "workspaceId"
+                ]
+            },
+            "ListTasks": {
+                "type": "object",
+                "properties": {
+                    "tasks": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Task"
+                        }
+                    },
+                    "meta": {
+                        "description": "Information about the result. Contains information necessary for pagination.",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/MetaResult"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "tasks"
+                ]
+            },
+            "MoveTask": {
+                "type": "object",
+                "properties": {
+                    "workspaceId": {
+                        "type": "string"
+                    },
+                    "assigneeId": {
+                        "type": "string",
+                        "description": "The user id the task should be assigned to"
+                    }
+                },
+                "required": [
+                    "workspaceId"
+                ]
+            },
+            "ListUsers": {
+                "type": "object",
+                "properties": {
+                    "users": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/User"
+                        }
+                    },
+                    "meta": {
+                        "description": "Information about the result. Contains information necessary for pagination.",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/MetaResult"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "users"
+                ]
+            },
+            "ListWorkspaces": {
+                "type": "object",
+                "properties": {
+                    "workspaces": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Workspace"
+                        }
+                    },
+                    "meta": {
+                        "description": "Information about the result. Contains information necessary for pagination.",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/MetaResult"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "workspaces"
+                ]
+            }
+        }
+    },
+    "security": [
+        {
+            "Motion_API_Key": []
+        }
+    ]
+}
