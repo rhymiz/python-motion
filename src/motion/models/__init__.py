@@ -25,15 +25,15 @@ class Project(BaseModel):
     name: str
     description: Optional[str] = None
     workspaceId: Optional[str] = None
-    status: Status
+    status: Optional[Status] = None
 
 
 class Workspace(BaseModel):
     id: str
     name: str
     teamId: Optional[str] = None
-    statuses: List[Status]
-    labels: List[Label]
+    statuses: Optional[List[Status]] = None
+    labels: Optional[List[Label]] = None
     type: str
 
 
