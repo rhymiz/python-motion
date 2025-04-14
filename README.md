@@ -4,6 +4,8 @@ A Python library for interfacing with the [Motion](https://wwww.usemotion.com)
 
 🧪 This library is still in development and is not yet ready for production use.
 
+[![downloads](https://pepy.tech/badge/python-motion)](https://pepy.tech/project/python-mope)
+
 ### Installation
 
 ```bash
