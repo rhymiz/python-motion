@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any, List, Required
 
 from ..client import GenericTypedDict
 from ..models import Status
@@ -6,7 +6,7 @@ from .base import SimpleListResource
 
 
 class StatusListParams(GenericTypedDict[Any]):
-    workspaceId: str
+    workspaceId: Required[str]
 
 
 class StatusResource(SimpleListResource[StatusListParams, Status]):

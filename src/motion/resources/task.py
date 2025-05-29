@@ -1,84 +1,90 @@
-from typing import Any, List, Literal, Union
+from typing import Any, List, Literal, NotRequired, Required, Union
 
 from ..client import GenericTypedDict, HttpMethod
 from ..models import ListRecurringTasks, ListTasks, RecurringTask, Task
 from .base import Resource
 
 
-class TaskCreate(GenericTypedDict[Any], total=False):
-    name: str  # required
-    workspaceId: str  # required
-    dueDate: str
-    duration: Union[Literal["NONE", "REMINDER"], int]
-    status: str
-    autoScheduled: dict[str, Any] | None
-    projectId: str
-    description: str
-    priority: Literal["ASAP", "HIGH", "MEDIUM", "LOW"]
-    labels: List[str]
-    assigneeId: str
+class TaskCreate(GenericTypedDict[Any]):
+    name: Required[str]
+    workspaceId: Required[str]
+
+    dueDate: NotRequired[str]
+    duration: NotRequired[Union[Literal["NONE", "REMINDER"], int]]
+    status: NotRequired[str]
+    autoScheduled: NotRequired[dict[str, Any] | None]
+    projectId: NotRequired[str]
+    description: NotRequired[str]
+    priority: NotRequired[Literal["ASAP", "HIGH", "MEDIUM", "LOW"]]
+    labels: NotRequired[List[str]]
+    assigneeId: NotRequired[str]
 
 
 class TaskUpdate(GenericTypedDict[Any], total=False):
-    name: str
-    dueDate: str
-    assigneeId: str | None
-    duration: Union[Literal["NONE", "REMINDER"], int]
-    status: str
-    autoScheduled: dict[str, Any] | None
-    projectId: str
-    description: str
-    priority: Literal["ASAP", "HIGH", "MEDIUM", "LOW"]
-    labels: List[str]
+    name: NotRequired[str]
+    dueDate: NotRequired[str]
+    assigneeId: NotRequired[str | None]
+    duration: NotRequired[Union[Literal["NONE", "REMINDER"], int]]
+    status: NotRequired[str]
+    autoScheduled: NotRequired[dict[str, Any] | None]
+    projectId: NotRequired[str]
+    description: NotRequired[str]
+    priority: NotRequired[Literal["ASAP", "HIGH", "MEDIUM", "LOW"]]
+    labels: NotRequired[List[str]]
 
 
 class TaskListParams(GenericTypedDict[Any], total=False):
-    cursor: str
-    label: str
-    status: List[str]
-    includeAllStatuses: bool
-    workspaceId: str
-    projectId: str
-    name: str
-    assigneeId: str
+    cursor: NotRequired[str]
+    label: NotRequired[str]
+    status: NotRequired[List[str]]
+    includeAllStatuses: NotRequired[bool]
+    workspaceId: NotRequired[str]
+    projectId: NotRequired[str]
+    name: NotRequired[str]
+    assigneeId: NotRequired[str]
 
 
 class TaskMoveWorkspace(GenericTypedDict[Any]):
-    workspaceId: str
-    assigneeId: str  # will be optional in usage
+    workspaceId: Required[str]
+    assigneeId: NotRequired[str]
 
 
 class RecurringTaskCreate(GenericTypedDict[Any]):
-    frequency: str
-    deadlineType: Literal["HARD", "SOFT"]
-    duration: Union[Literal["REMINDER"], int]
-    startingOn: str
-    idealTime: str
-    schedule: str
-    name: str
-    workspaceId: str
-    description: str
-    priority: Literal["HIGH", "MEDIUM"]
-    assigneeId: str
+    frequency: Required[str]
+    name: Required[str]
+    workspaceId: Required[str]
+    priority: Required[Literal["HIGH", "MEDIUM"]]
+    assigneeId: Required[str]
+
+    deadlineType: NotRequired[Literal["HARD", "SOFT"]]
+    duration: NotRequired[Union[Literal["REMINDER"], int]]
+    startingOn: NotRequired[str]
+    idealTime: NotRequired[str]
+    schedule: NotRequired[str]
+    description: NotRequired[str]
 
 
 class RecurringTaskCreateOptional(GenericTypedDict[Any], total=False):
-    frequency: str
-    deadlineType: Literal["HARD", "SOFT"]
-    duration: Union[Literal["REMINDER"], int]
-    startingOn: str
-    idealTime: str
-    schedule: str
-    name: str
-    workspaceId: str
-    description: str
-    priority: Literal["HIGH", "MEDIUM"]
-    assigneeId: str
+    # This TypedDict mirrors RecurringTaskCreate but every key is
+    # explicitly marked as NotRequired so that `PATCH` calls only need
+    # to include fields that should be modified.
+
+    frequency: NotRequired[str]
+    deadlineType: NotRequired[Literal["HARD", "SOFT"]]
+    duration: NotRequired[Union[Literal["REMINDER"], int]]
+    startingOn: NotRequired[str]
+    idealTime: NotRequired[str]
+    schedule: NotRequired[str]
+    name: NotRequired[str]
+    workspaceId: NotRequired[str]
+    description: NotRequired[str]
+    priority: NotRequired[Literal["HIGH", "MEDIUM"]]
+    assigneeId: NotRequired[str]
 
 
-class RecurringTaskListParams(GenericTypedDict[Any], total=False):
-    cursor: str
-    workspaceId: str
+class RecurringTaskListParams(GenericTypedDict[Any]):
+    workspaceId: Required[str]
+    cursor: NotRequired[str]
 
 
 class TaskResource(

@@ -1,23 +1,24 @@
-from typing import Any, List, Literal
+from typing import Any, List, Literal, NotRequired, Required
 
 from ..client import GenericTypedDict
 from ..models import ListProjects, Project
 from .base import Resource
 
 
-class ProjectCreate(GenericTypedDict[Any], total=False):
-    name: str  # required
-    workspaceId: str  # required
-    priority: Literal["ASAP", "HIGH", "MEDIUM", "LOW"]  # required
-    dueDate: str
-    description: str
-    labels: List[str]
-    status: str
+class ProjectCreate(GenericTypedDict[Any]):
+    name: Required[str]
+    workspaceId: Required[str]
+    priority: Required[Literal["ASAP", "HIGH", "MEDIUM", "LOW"]]
+
+    dueDate: NotRequired[str]
+    description: NotRequired[str]
+    labels: NotRequired[List[str]]
+    status: NotRequired[str]
 
 
-class ProjectListParams(GenericTypedDict[Any], total=False):
-    cursor: str
-    workspaceId: str  # required for list
+class ProjectListParams(GenericTypedDict[Any]):
+    workspaceId: Required[str]
+    cursor: NotRequired[str]
 
 
 class ProjectResource(

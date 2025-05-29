@@ -37,6 +37,7 @@ def test_create_task(task_resource: TaskResource, mock_client: Mock) -> None:
         },
         "labels": [],
         "assignees": [],
+        "parentRecurringTaskId": None,
     }
 
     task = task_resource.create({"name": "New Task", "workspaceId": "ws123"})
@@ -79,6 +80,7 @@ def test_list_tasks(task_resource: TaskResource, mock_client: Mock) -> None:
                 },
                 "labels": [],
                 "assignees": [],
+                "parentRecurringTaskId": None,
             }
         ],
         "meta": {"pageSize": 100},
@@ -118,6 +120,7 @@ def test_retrieve_task(task_resource: TaskResource, mock_client: Mock) -> None:
         },
         "labels": [],
         "assignees": [],
+                "parentRecurringTaskId": None,
     }
 
     task = task_resource.retrieve("task123")
@@ -155,6 +158,7 @@ def test_patch_task(task_resource: TaskResource, mock_client: Mock) -> None:
         },
         "labels": [],
         "assignees": [],
+                "parentRecurringTaskId": None,
     }
 
     task = task_resource.patch(
@@ -215,6 +219,7 @@ def test_move_workspace(
         },
         "labels": [],
         "assignees": [],
+        "parentRecurringTaskId": None,
     }
 
     task = task_resource.move_workspace(

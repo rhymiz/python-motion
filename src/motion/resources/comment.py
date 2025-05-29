@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, NotRequired, Required
 
 from ..client import GenericTypedDict
 from ..models import Comment, ListComments
@@ -6,13 +6,13 @@ from .base import Resource
 
 
 class CommentCreateData(GenericTypedDict[Any]):
-    taskId: str
-    content: str
+    taskId: Required[str]
+    content: Required[str]
 
 
-class CommentListParams(GenericTypedDict[Any], total=False):
-    cursor: str
-    taskId: str
+class CommentListParams(GenericTypedDict[Any]):
+    taskId: Required[str]
+    cursor: NotRequired[str]
 
 
 class CommentResource(

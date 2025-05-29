@@ -2,6 +2,8 @@
 Test schema compliance for Motion API models
 """
 
+from typing import Any
+
 from motion.models import (
     AutoScheduledInfo,
     CommentPost,
@@ -15,7 +17,7 @@ from motion.models import (
 
 def test_task_model_schema_compliance():
     """Test that Task model matches the schema"""
-    task_data = {
+    task_data: dict[str, Any] = {
         "id": "task123",
         "name": "Test Task",
         "description": "A test task",
@@ -41,6 +43,7 @@ def test_task_model_schema_compliance():
         },
         "labels": [],
         "assignees": [],
+        "parentRecurringTaskId": None,
     }
 
     task = Task.model_validate(task_data)
@@ -122,7 +125,7 @@ def test_schedule_model_schema_compliance():
 
 def test_recurring_task_schema_compliance():
     """Test that RecurringTask model matches the schema"""
-    recurring_task_data = {
+    recurring_task_data: dict[str, Any] = {
         "id": "rt123",
         "name": "Daily Standup",
         "priority": "HIGH",

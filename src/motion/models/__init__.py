@@ -66,6 +66,20 @@ class ListProjects(BaseModel):
     meta: Optional[MetaResult] = None
 
 
+# -------------------------------------------------------------
+# Response / Domain Models
+# -------------------------------------------------------------
+
+# NOTE: The following models aim to mirror the schemas defined in the
+#       `Motion REST API swagger.json` file located under the `data/`
+#       directory.  Where the OpenAPI specification marks a field as
+#       "required" the attribute is defined without a default (or with
+#       an explicit `Field(...)`) even when the logical value might be
+#       `None`/`null` in responses.  This guarantees that model
+#       validation will fail if the API omits a required key, keeping
+#       the SDK completely aligned with the contract.
+
+
 class RecurringTask(BaseModel):
     workspace: Workspace
     id: str
@@ -75,7 +89,9 @@ class RecurringTask(BaseModel):
     assignee: User
     project: Optional[Project] = None
     status: Status
-    priority: Literal["HIGH", "MEDIUM"]
+    # According to the schema the priority field in the response can be
+    # one of the task-level priorities (ASAP/HIGH/MEDIUM/LOW).
+    priority: Literal["ASAP", "HIGH", "MEDIUM", "LOW"]
     labels: List[Label]
 
 
@@ -153,7 +169,11 @@ class Task(BaseModel):
     description: Optional[str] = None
     dueDate: datetime
     deadlineType: Literal["HARD", "SOFT", "NONE"] = Field(default="SOFT")
-    parentRecurringTaskId: Optional[str] = None
+    # The schema marks this field as required but allows it to be
+    # `null` when the task is not generated from a recurring template.
+    parentRecurringTaskId: Optional[str] = Field(
+        ..., description="The id of the recurring task this task belongs to if any"
+    )
     completed: bool
     creator: User
     project: Optional[Project] = None
@@ -308,5 +328,6 @@ class TaskPatch(BaseModel):
 class MoveTask(BaseModel):
     workspaceId: str
     assigneeId: Optional[str] = Field(
-        None, description="The user id the task should be assigned to"
+        None,
+        description="The user id the task should be assigned to. Optional according to the OpenAPI specification.",
     )
