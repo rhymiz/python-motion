@@ -30,7 +30,7 @@ class HttpClient:
         self,
         method: HttpMethod,
         path: str,
-        data: GenericTypedDict | None = None,
+        data: GenericTypedDict[Any] | None = None,
         params: dict[str, Any] | None = None,
     ) -> Response:
         """

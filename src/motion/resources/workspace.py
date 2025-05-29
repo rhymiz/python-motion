@@ -1,28 +1,28 @@
-from typing import TypedDict, List
+from typing import Any, List
 
-from ..client import HttpMethod
-from ..models import ListWorkspaces, Status
+from ..client import GenericTypedDict
+from ..models import ListWorkspaces, Workspace
 from .base import Resource
 
 
-class WorkspaceListParams(TypedDict, total=False):
+class WorkspaceListParams(GenericTypedDict[Any], total=False):
     cursor: str
     ids: List[str]
 
 
-class WorkspaceResource(Resource):
+class WorkspaceResource(
+    Resource[
+        GenericTypedDict[Any],
+        GenericTypedDict[Any],
+        WorkspaceListParams,
+        Workspace,
+        ListWorkspaces,
+    ]
+):
     base_path = "/workspaces"
 
-    def list(
-        self, params: WorkspaceListParams | None = None
-    ) -> ListWorkspaces:
-        response = super().list(params)
-        return ListWorkspaces.model_validate(response.json())
+    def _parse_model(self, data: Any) -> Workspace:
+        return Workspace.model_validate(data)
 
-    def list_statuses(self, workspace_id: str) -> List[Status]:
-        response = self._client.call_api(
-            HttpMethod.GET,
-            path="/statuses",
-            params={"workspaceId": workspace_id},
-        )
-        return [Status.model_validate(item) for item in response.json()]
+    def _parse_list_model(self, data: Any) -> ListWorkspaces:
+        return ListWorkspaces.model_validate(data)

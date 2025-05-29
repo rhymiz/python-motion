@@ -1,26 +1,62 @@
-[tool.poetry]
-name = "python-motion"
-version = "0.2.0"
-description = ""
-authors = ["Lemuel Boyce <lemuel@vokality.com>"]
+[project]
+name = "motion"
+dynamic = ["version"]
+urls = { Homepage = "https://github.com/rhymiz/python-motion", GitHub = "https://github.com/rhymiz/python-motion" }
+description = "A Python library for interfacing with Motion (usemotion.com) API"
 readme = "README.md"
 license = "MIT"
-packages = [{ "include" = "motion", from = "src" }]
+authors = [{ name = "Lemuel Boyce", email = "lemuel@vokality.com" }]
+keywords = [
+    "motion",
+    "usemotion",
+    "api",
+    "client",
+    "usemotion.com",
+    "productivity",
+    "ai",
+]
+requires-python = ">=3.11"
+dependencies = ["pydantic>=2.11.5", "requests>=2.32.3"]
+classifiers = [
+    "Topic :: Software Development :: Libraries",
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
 
-[tool.poetry.dependencies]
-python = "^3.11"
-requests = "^2.32.0"
-pydantic = "^2.9.2"
 
-[tool.poetry.group.dev.dependencies]
-ruff = "*"
-ruff-lsp = "*"
-pytest = "*"
+[dependency-groups]
+dev = [
+    "pyright>=1.1.401",
+ "pytest>=8.3.5",
+ "pytest-cov>=6.1.1",
+ "ruff>=0.11.12",
+]
+
 
 [tool.ruff]
+exclude = [".venv"]
 line-length = 79
 indent-width = 4
-target-version = "py311"
+target-version = "py312"
+respect-gitignore = true
+
+[tool.ruff.lint]
+select = ["E", "I", "B", "ASYNC"]
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["D"]
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "parents"
+
+[tool.ruff.analyze]
+detect-string-imports = true
+
 
 [tool.ruff.format]
 quote-style = "double"
@@ -30,6 +66,17 @@ line-ending = "auto"
 docstring-code-format = true
 docstring-code-line-length = 79
 
+[tool.pyright]
+typeCheckingMode = "strict"
+
+
+[tool.hatch.version]
+source = "uv-dynamic-versioning"
+
+[tool.uv-dynamic-versioning]
+fallback-version = "0.0.0"
+
+
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling", "uv-dynamic-versioning"]
+build-backend = "hatchling.build"

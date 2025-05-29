@@ -4,6 +4,7 @@ from .resources import (
     ProjectResource,
     RecurringTaskResource,
     ScheduleResource,
+    StatusResource,
     TaskResource,
     UserResource,
     WorkspaceResource,
@@ -23,6 +24,7 @@ class Motion:
         self.comments = CommentResource(self._client)
         self.workspaces = WorkspaceResource(self._client)
         self.schedules = ScheduleResource(self._client)
+        self.statuses = StatusResource(self._client)
         self.recurring_tasks = RecurringTaskResource(self._client)
 
 

@@ -1,9 +1,10 @@
-from .user import UserResource
-from .task import TaskResource, RecurringTaskResource
-from .project import ProjectResource
 from .comment import CommentResource
-from .workspace import WorkspaceResource
+from .project import ProjectResource
 from .schedule import ScheduleResource
+from .status import StatusResource
+from .task import RecurringTaskResource, TaskResource
+from .user import UserResource
+from .workspace import WorkspaceResource
 
 __all__ = [
     "UserResource",
@@ -13,4 +14,5 @@ __all__ = [
     "CommentResource",
     "WorkspaceResource",
     "ScheduleResource",
+    "StatusResource",
 ]

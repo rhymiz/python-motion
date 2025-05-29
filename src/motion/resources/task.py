@@ -1,38 +1,38 @@
-from typing import Any, List, TypedDict
+from typing import Any, List, Literal, Union
 
-from ..client import HttpMethod
+from ..client import GenericTypedDict, HttpMethod
 from ..models import ListRecurringTasks, ListTasks, RecurringTask, Task
 from .base import Resource
 
 
-class TaskCreate(TypedDict, total=False):
-    name: str
-    workspaceId: str
+class TaskCreate(GenericTypedDict[Any], total=False):
+    name: str  # required
+    workspaceId: str  # required
     dueDate: str
-    duration: int | str
-    status: str
-    autoScheduled: dict[str, Any] | None
-    projectId: str | None
-    description: str | None
-    priority: str
-    labels: List[str] | None
-    assigneeId: str | None
-
-
-class TaskUpdate(TypedDict, total=False):
-    name: str
-    dueDate: str
-    assigneeId: str | None
-    duration: int | str
+    duration: Union[Literal["NONE", "REMINDER"], int]
     status: str
     autoScheduled: dict[str, Any] | None
     projectId: str
     description: str
-    priority: str
+    priority: Literal["ASAP", "HIGH", "MEDIUM", "LOW"]
+    labels: List[str]
+    assigneeId: str
+
+
+class TaskUpdate(GenericTypedDict[Any], total=False):
+    name: str
+    dueDate: str
+    assigneeId: str | None
+    duration: Union[Literal["NONE", "REMINDER"], int]
+    status: str
+    autoScheduled: dict[str, Any] | None
+    projectId: str
+    description: str
+    priority: Literal["ASAP", "HIGH", "MEDIUM", "LOW"]
     labels: List[str]
 
 
-class TaskListParams(TypedDict, total=False):
+class TaskListParams(GenericTypedDict[Any], total=False):
     cursor: str
     label: str
     status: List[str]
@@ -43,76 +43,91 @@ class TaskListParams(TypedDict, total=False):
     assigneeId: str
 
 
-class TaskMoveWorkspace(TypedDict):
+class TaskMoveWorkspace(GenericTypedDict[Any]):
     workspaceId: str
-    assigneeId: str | None
+    assigneeId: str  # will be optional in usage
 
 
-class RecurringTaskCreate(TypedDict):
+class RecurringTaskCreate(GenericTypedDict[Any]):
     frequency: str
-    deadlineType: str
-    duration: int | str
+    deadlineType: Literal["HARD", "SOFT"]
+    duration: Union[Literal["REMINDER"], int]
     startingOn: str
-    idealTime: str | None
+    idealTime: str
     schedule: str
     name: str
     workspaceId: str
-    description: str | None
-    priority: str
+    description: str
+    priority: Literal["HIGH", "MEDIUM"]
     assigneeId: str
 
 
-class RecurringTaskListParams(TypedDict, total=False):
+class RecurringTaskCreateOptional(GenericTypedDict[Any], total=False):
+    frequency: str
+    deadlineType: Literal["HARD", "SOFT"]
+    duration: Union[Literal["REMINDER"], int]
+    startingOn: str
+    idealTime: str
+    schedule: str
+    name: str
+    workspaceId: str
+    description: str
+    priority: Literal["HIGH", "MEDIUM"]
+    assigneeId: str
+
+
+class RecurringTaskListParams(GenericTypedDict[Any], total=False):
     cursor: str
     workspaceId: str
 
 
-class TaskResource(Resource):
+class TaskResource(
+    Resource[TaskCreate, TaskUpdate, TaskListParams, Task, ListTasks]
+):
     base_path = "/tasks"
 
-    def create(self, data: TaskCreate) -> Task:
-        response = super().create(data)
-        return Task.model_validate(response.json())
+    def _parse_model(self, data: Any) -> Task:
+        return Task.model_validate(data)
 
-    def update(self, object_id: str, data: TaskUpdate) -> Task:
-        response = super().update(object_id, data)
-        return Task.model_validate(response.json())
+    def _parse_list_model(self, data: Any) -> ListTasks:
+        return ListTasks.model_validate(data)
 
-    def list(self, params: TaskListParams | None = None) -> ListTasks:
-        response = super().list(params)
-        return ListTasks.model_validate(response.json())
-
-    def retrieve(self, object_id: str) -> Task:
-        response = super().retrieve(object_id)
+    def patch(self, task_id: str, data: TaskUpdate) -> Task:
+        response = self._client.call_api(
+            HttpMethod.PATCH,
+            f"{self.base_path}/{task_id}",
+            data=data,
+        )
         return Task.model_validate(response.json())
 
     def unassign_task(self, task_id: str) -> None:
         self._client.call_api(
             HttpMethod.DELETE,
-            path=f"{self.base_path}/{task_id}/assignee",
+            f"{self.base_path}/{task_id}/assignee",
         )
 
     def move_workspace(self, task_id: str, data: TaskMoveWorkspace) -> Task:
         response = self._client.call_api(
             HttpMethod.PATCH,
-            path=f"{self.base_path}/{task_id}/move",
+            f"{self.base_path}/{task_id}/move",
             data=data,
         )
         return Task.model_validate(response.json())
 
 
-class RecurringTaskResource(Resource):
+class RecurringTaskResource(
+    Resource[
+        RecurringTaskCreate,
+        RecurringTaskCreateOptional,
+        RecurringTaskListParams,
+        RecurringTask,
+        ListRecurringTasks,
+    ]
+):
     base_path = "/recurring-tasks"
 
-    def create(self, data: RecurringTaskCreate) -> RecurringTask:
-        response = super().create(data)
-        return RecurringTask.model_validate(response.json())
+    def _parse_model(self, data: Any) -> RecurringTask:
+        return RecurringTask.model_validate(data)
 
-    def list(
-        self, params: RecurringTaskListParams | None = None
-    ) -> ListRecurringTasks:
-        response = super().list(params)
-        return ListRecurringTasks.model_validate(response.json())
-
-    def delete(self, object_id: str) -> None:
-        super().delete(object_id)
+    def _parse_list_model(self, data: Any) -> ListRecurringTasks:
+        return ListRecurringTasks.model_validate(data)
